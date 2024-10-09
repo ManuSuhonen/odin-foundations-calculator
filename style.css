@@ -1,41 +1,70 @@
-html * {
+* {
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
     background: #00000040 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    padding: 10px;
-    margin: 10px;
-    resize: both;
-    overflow: auto;
     outline: 1px solid #313131 !important;
+	border-radius: 43px;
+}
+
+html {
+    position: fixed;
+    overflow: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    overflow: auto;
 }
 
 #title {
     align-content: center;
     text-align: center;
-    padding: 10px;
-    margin: 10px;
+}
+
+div#container {
+    display: flex;
+    width: 100%;
+    min-width: 100%;
+    resize: both;
+    justify-content: center;
+    background-color: #00000000 !important;
+    outline: unset !important;
 }
 
 div#calculator-body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-width: 800px;
+    min-width: 800px;
+    height: fit-content;
+    gap: 10px;
 }
 
 div#screen {
     font-size: xxx-large;
     text-align: end;
-    min-width: 900px;
+    width: 100%;
 }
 
 div#buttons {
     display: flex;
-    min-width: 900px;
+    flex-wrap: wrap;
+    align-content: center;
+    width: 100%;
+    gap: 10px;
 }
 
 div#digits {
-    flex: 3;
-}
-
-div#operators {
-    flex: 1;
+    width: calc((100% / 4) - 7.5px);
+    font-size: 123px;
+    text-align: center;
+    aspect-ratio: 1;
 }
