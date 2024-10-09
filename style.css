@@ -42,14 +42,14 @@ div#calculator-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 800px;
-    min-width: 800px;
+    max-width: 520px;
+    min-width: 487px;
     height: fit-content;
     gap: 10px;
 }
 
 div#screen {
-    font-size: xxx-large;
+    font-size: 70px;
     text-align: end;
     width: 100%;
 }
@@ -64,7 +64,7 @@ div#buttons {
 
 div#digits {
     width: calc((100% / 4) - 7.5px);
-    font-size: 123px;
+    font-size: 70px;
     text-align: center;
     aspect-ratio: 1;
 }
