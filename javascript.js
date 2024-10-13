@@ -1,163 +1,257 @@
-/*
-var element = document.querySelector(' … ');
-var styles = window.getComputedStyle(element, ':after')
-var content = styles['content'];
-
-window.getComputedStyle(
-    document.querySelector('somedivId'), ':after'
-);
-
-window.getSelection().toString()
-
-
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].reduce((accumulator, currentValue) => {
-    return accumulator + currentValue
-});
-
-
-let callback = (x, y) => {
-    return x + y;
-}
-
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].reduce((accumulator, currentValue) => {
-    return accumulator + currentValue
-    //return "error"
-}, 1);
-
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].reduce(callback, 0);
-
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].reduce((pv, cv, ci, []) => {
-    return pv + cv;
-});
-
-
-// Since we only consider letters and numbers, create a variable containing all valid characters
-const alphanumerical = '+-/*0123456789';
-
-// Convert to lowercase, split to array of individual characters, filter only valid characters, then rejoin as new string
-const cleanedString = string
-    .toLowerCase()
-    .split('')
-    .filter((character) => alphanumerical.includes(character))
-    .join()
-
-// Create a new reversed string for comparison
-const reversedString = cleanedString.split('').reverse().join('');
-
-// Return the outcome of the comparison which will either be true or false
-//return cleanedString === reversedString;
-
-
-let tt = parseInt(
-    "asd"
-);
-
-let ttt = Number("asd")
-Number.parseFloat("asd")
-
-isNaN(number)
-
-console.log(`${tt} ${ttt}`);
-
-
-let getCount = () => {
-    return outputStack.map(x => {
-        let count = 0;
-        if (operators.includes(x)) {
-            count = count + 1;
-        }
-        return count;
-    }).reduce((x, y) => { return x + y })
-}
-
-    const numerical = '0123456789';
-    const operators = '-+/*'
-    let ops = {
-        "*":4,
-        "/":3,
-        "+":2,
-        "-":1,
+const TokenTypes = {
+    NUMBER: 'NUMBER',
+    IDENTIFIER: 'IDENTIFIER', // New token type!
+    ADDITION: '+',
+    SUBTRACTION: '-',
+    MULTIPLICATION: '*',
+    DIVISION: '/',
+    EXPONENTIATION: '^',
+    PARENTHESIS_LEFT: '(',
+    PARENTHESIS_RIGHT: ')'
+  };
+  
+  const TokenSpec = [
+    [/^\s+/, null],
+    [/^(?:\d+(?:\.\d*)?|\.\d+)/, TokenTypes.NUMBER],
+    [/^[a-z]+/, TokenTypes.IDENTIFIER], // Now we can understand letters!
+    [/^\+/, TokenTypes.ADDITION],
+    [/^\-/, TokenTypes.SUBTRACTION],
+    [/^\*/, TokenTypes.MULTIPLICATION],
+    [/^\//, TokenTypes.DIVISION],
+    [/^\^/, TokenTypes.EXPONENTIATION],
+    [/^\(/, TokenTypes.PARENTHESIS_LEFT],
+    [/^\)/, TokenTypes.PARENTHESIS_RIGHT]
+  ];
+  
+  class Tokenizer {
+    constructor(input) {
+      this.input = input;
+      this.cursor = 0;
     }
-
-    function operate(lhs, rhs, operator) {
-        switch (operator) {
-            case '*': return lhs * rhs;
-            case '/': return lhs / rhs;
-            case '+': return lhs + rhs;
-            case '-': return lhs - rhs;
-        }
+  
+    hasMoreTokens() {
+      return this.cursor < this.input.length;
     }
-
-    let simpArr = "1+2*4-3";
-
-    let holdingStack = [];
-
-    let outputStack = [];
-
-    [...(simpArr)].forEach(x => {
-        if (numerical.includes(x)) {
-            outputStack.push(x);
-        } else {
-            while (ops[holdingStack.at(-1)] > ops[x]){
-                outputStack.push(holdingStack.pop());
-            }
-            holdingStack.push(x);
-        }
-    })
-
-    outputStack.push(holdingStack.pop());
-
-    console.log(holdingStack,outputStack);
-
-    let getCount = () => {
-        return outputStack.map(x => {
-            let count = 0;
-            if (operators.includes(x)) {
-                count = count + 1;
-            }
-            return count;
-        }).reduce((x, y) => { return x + y })
+  
+    match(regex, inputSlice) {
+      const matched = regex.exec(inputSlice);
+      if (matched === null) {
+        return null;
+      }
+  
+      this.cursor += matched[0].length;
+      return matched[0];
     }
-
-    console.log(getCount());
-
-    for (let idx = 0; idx < outputStack.length; idx++) {
-        value = outputStack[idx];
-        if (operators.includes(value)) {
-            let lhs = outputStack[idx-2];
-            let rhs = outputStack[idx-1];
-            lhs = Number(lhs);
-            rhs = Number(rhs);
-            let res = operate(lhs,rhs,value);
-            outputStack[idx] = res;
-            outputStack[idx-2] = undefined;
-            outputStack[idx-1] = undefined;
-            break;
+  
+    getNextToken() {
+      if (!this.hasMoreTokens()) {
+        return null;
+      }
+  
+      const inputSlice = this.input.slice(this.cursor);
+  
+      for (let [regex, type] of TokenSpec) {
+        const tokenValue = this.match(regex, inputSlice);
+  
+        if (tokenValue === null) {
+          continue;
         }
+  
+        if (type === null) {
+          return this.getNextToken();
+        }
+  
+        return {
+          type,
+          value: tokenValue,
+        };
+      }
+  
+      throw new SyntaxError(`Unexpected token: "${inputSlice[0]}"`);
     }
+  }
+  
+  const operators = {
+    '^': {
+      prec: 4,
+      assoc: 'right',
+    },
+    '*': {
+      prec: 3,
+      assoc: 'left',
+    },
+    '/': {
+      prec: 3,
+      assoc: 'left',
+    },
+    '+': {
+      prec: 2,
+      assoc: 'left',
+    },
+    '-': {
+      prec: 2,
+      assoc: 'left',
+    },
+  };
+  
+  const functionList = ['sin', 'cos', 'tan'];
+  
+  const isFunction = (token) => {
+    return functionList.includes(token.toLowerCase());
+  };
+  
+  const assert = (predicate) => {
+    if (predicate) return;
+    throw new Error('Assertion failed due to invalid token');
+  };
+  
+  const evaluate = (input) => {
+    const opSymbols = Object.keys(operators);
+    const stack = [];
+    let output = [];
+  
+    const peek = () => {
+      return stack.at(-1);
+    };
+  
+    const addToOutput = (token) => {
+      output.push(token);
+    };
+  
+    const handlePop = () => {
+      const op = stack.pop();
+  
+      if (op === '(') return;
+  
+      if (isFunction(op)) {
+        const poppedValue = output.pop();
+        switch (op) {
+          case 'sin':
+            return Math.sin(poppedValue);
+          case 'cos':
+            return Math.cos(poppedValue);
+          case 'tan':
+            return Math.tan(poppedValue);
+        }
+      }
+  
+      const right = parseFloat(output.pop());
+      const left = parseFloat(output.pop());
+  
+      switch (op) {
+        case '+':
+          return left + right;
+        case '-':
+          return left - right;
+        case '*':
+          return left * right;
+        case '/':
+          return left / right;
+        case '^':
+          return left ** right;
+        default:
+          throw new Error(`Invalid operation: ${op}`);
+      }
+    };
+  
+    const handleToken = (token) => {
+      switch (true) {
+        case !isNaN(parseFloat(token)):
+          addToOutput(token);
+          break;
+        case isFunction(token):
+          stack.push(token);
+          break;
+        case opSymbols.includes(token):
+          const o1 = token;
+          let o2 = peek();
+  
+          while (
+            o2 !== undefined &&
+            o2 !== '(' &&
+            (operators[o2].prec > operators[o1].prec ||
+              (operators[o2].prec === operators[o1].prec &&
+                operators[o1].assoc === 'left'))
+          ) {
+            addToOutput(handlePop());
+            o2 = peek();
+          }
+          stack.push(o1);
+          break;
+        case token === '(':
+          stack.push(token);
+          break;
+        case token === ')':
+          let topOfStack = peek();
+          while (topOfStack !== '(') {
+            assert(stack.length !== 0);
+            addToOutput(handlePop());
+            topOfStack = peek();
+          }
+          assert(peek() === '(');
+          handlePop();
+          if (isFunction(peek())) {
+            addToOutput(handlePop());
+          }
+          break;
+        default:
+          throw new Error(`Invalid token: ${token}`);
+      }
+    };
+  
+    const tokenizer = new Tokenizer(input);
+    let token;
+    while ((token = tokenizer.getNextToken())) {
+      handleToken(token.value);
+    }
+  
+    while (stack.length !== 0) {
+      assert(peek() !== '(');
+      addToOutput(handlePop());
+    }
+  
+    return output[0];
+  };
 
-    console.log(getCount());
-    console.log("asasdasdADS");
-*/
-
-let buttons = document.querySelectorAll('div[id="digits"]')
 let screen = document.querySelector('div[id="screen"]');
+let buttons = document.querySelectorAll('div .button');
 
-buttons.forEach( x=> {
+buttons.forEach(x => {
     x.style.cursor = "pointer";
 
     x.addEventListener("mouseenter", (event) => {
         event.target.style.opacity = "0.6";
     });
-    
+
     x.addEventListener("mouseleave", (event) => {
         event.target.style.opacity = "";
-    });    
+    });
 
-    x.addEventListener("click", (event) => {
-        event.target.style.opacity = "";
-        screen.textContent = screen.textContent + event.target.textContent;
-    });  
 });
 
+let symbols = document.querySelectorAll('div .symbol');
 
+symbols.forEach(x => {
+    x.addEventListener("click", (event) => {
+
+        screen.textContent = screen.textContent + event.target.textContent;
+    });
+});
+
+let clearBtn = document.querySelector('div .clear');
+
+clearBtn.addEventListener("click", (event) => {
+    screen.textContent = "";
+});
+
+let equalBtn = document.querySelector('div .equal');
+
+equalBtn.addEventListener("click", (event) => {
+    let input = screen.textContent;
+    console.log(input);
+
+    let answer = evaluate(input);
+    console.log(answer);
+
+    screen.textContent = String(answer);
+});
